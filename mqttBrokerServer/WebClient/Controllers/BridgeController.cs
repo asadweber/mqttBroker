@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BrokerService;
+using Microsoft.AspNetCore.Mvc;
 
-namespace BrokerService.Controllers
+namespace WebClient.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

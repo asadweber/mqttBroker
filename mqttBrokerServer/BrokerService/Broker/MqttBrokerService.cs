@@ -1,7 +1,9 @@
 ﻿using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Protocol;
 using MQTTnet.Server;
 using System.Text;
-namespace BrokerService
+namespace BrokerService.Broker
 {
 
 
@@ -11,15 +13,16 @@ namespace BrokerService
 
         public async Task StartMqttBrokerAsync()
         {
+
             // Configure the MQTT server options
             var optionsBuilder = new MqttServerOptionsBuilder()
                 .WithDefaultEndpoint()  // Default non-encrypted endpoint
-                .WithPersistentSessions(true)
                 .WithDefaultEndpointPort(1883)
                 ;
 
             // Create the MQTT server instance
-            _mqttServer = new MqttFactory().CreateMqttServer(optionsBuilder.Build());
+            var factory = new MqttFactory();
+            _mqttServer = factory.CreateMqttServer(optionsBuilder.Build());
 
             // Handle client connection Validation
             _mqttServer.ValidatingConnectionAsync += async e =>
@@ -51,13 +54,11 @@ namespace BrokerService
             // Handle subscription interception
             _mqttServer.InterceptingSubscriptionAsync += async e =>
             {
-                e.TopicFilter.RetainAsPublished = true;
                 Console.WriteLine($"Client {e.ClientId} is attempting to subscribe to {e.TopicFilter.Topic}.");
                 e.ProcessSubscription = true;  // Accept subscription
-                Console.WriteLine($"Subscription to {e.TopicFilter.Topic} was accepted.");
-                
 
-                await SendMessageToClient(e.ClientId, e.TopicFilter.Topic, "Message From Server");
+                await SendMessageToClient(e.ClientId, e.TopicFilter.Topic, "Sent Message to Client");
+
                 await Task.CompletedTask;
             };
 
@@ -67,6 +68,7 @@ namespace BrokerService
             //    var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
             //    Console.WriteLine($"Broker:Internal Received message from {e.ClientId} on topic {e.ApplicationMessage.Topic}: {message}");
             //    // Optionally, you can route or forward messages here
+            //    e.ProcessPublish = true;
             //    await Task.CompletedTask;
             //};
 
@@ -75,22 +77,26 @@ namespace BrokerService
             Console.WriteLine("MQTT Broker started at port 1883.");
         }
 
-        public async Task SendMessageToClient(string clientId,string topic, string message)
+        public async Task SendMessageToClient(string clientId, string topic, string message)
         {
-            var mqttMessage = new MqttApplicationMessageBuilder()
-            .WithTopic(topic)
-            .WithPayload(message)
-            .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.ExactlyOnce)
-            .Build();
-            var mqttApplicationMessage = new InjectedMqttApplicationMessage(mqttMessage)
+            // Publish a message to a topic after 5 seconds
+            var mqttApplicationMessage = new MqttApplicationMessageBuilder()
+                .WithTopic(topic) // Topic name
+                .WithPayload(Encoding.UTF8.GetBytes(message)) // Message content
+                .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce) // QoS
+                .WithRetainFlag(false)
+                .Build();
+
+
+            var data = new InjectedMqttApplicationMessage(mqttApplicationMessage)
             {
                 SenderClientId = clientId
             };
 
-            // Send message to the specific client
-            await _mqttServer.InjectApplicationMessage(mqttApplicationMessage);
+            // Publish the message
+            await _mqttServer.InjectApplicationMessage(data);
             Console.WriteLine($"Broker:Message published to client {clientId} on topic {topic}: {message}");
-           await Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         private bool IsValidClient(string clientId, string username, string password)
@@ -107,6 +113,8 @@ namespace BrokerService
                 Console.WriteLine("MQTT Broker stopped.");
             }
         }
+
+
     }
 
 }

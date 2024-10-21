@@ -1,16 +1,11 @@
 using BrokerService;
-using BrokerService.Broker;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-
-// Register the MqttBrokerService as a singleton
-builder.Services.AddSingleton<MqttBrokerService>();
-builder.Services.AddHostedService<MqttHostedService>();
-
+builder.Services.AddSingleton<MqttClientService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

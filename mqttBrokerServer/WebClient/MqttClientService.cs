@@ -35,60 +35,50 @@ namespace BrokerService
             var rabbitConnection = rabbitFactory.CreateConnection();
             _rabbitChannel = rabbitConnection.CreateModel();
             _rabbitChannel.QueueDeclare(queue: _rabbitQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+            
+
         }
 
         public async Task StartBridgeAsync(SubscriptionRequest request)
         {
-            //Unique Client Id
-            string UniqueClientId = request.CivilId.ToString();
-
-
+          
+            
             // Connect to the MQTT broker
             var mqttOptions = new MqttClientOptionsBuilder()
-           .WithClientId(UniqueClientId)
+           .WithClientId(Guid.NewGuid().ToString())
            .WithTcpServer("localhost", 1883) // Address of the MQTT broker
            .WithCredentials("mqttuser", "mqttpass") // Username and password
            .WithCleanSession() // Clean session option
-           .WithWillQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.ExactlyOnce)
+           .WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V500)           
            .Build();
+            
+           if(!_mqttClient.IsConnected)
+            await  _mqttClient.ConnectAsync(mqttOptions);
 
-            if (!_mqttClient.IsConnected)
-                await _mqttClient.ConnectAsync(mqttOptions);
-
-
+            //Unbind
             _mqttClient.ApplicationMessageReceivedAsync -= ApplicationMessageReceived();
+
             //Receiver From Broker 
             _mqttClient.ApplicationMessageReceivedAsync += ApplicationMessageReceived();
 
-            var subscriptionIdentifier = (uint)Guid.NewGuid().GetHashCode();
-
-
-            // Create subscription options
-            var subscriptionOptions = new MqttClientSubscribeOptionsBuilder()
-                //.WithSubscriptionIdentifier(subscriptionIdentifier)
-                .WithTopicFilter(topic =>
-                {
-                    topic.WithTopic(request.Topic)
-                         .WithAtLeastOnceQoS() // Set desired QoS level
-                         ; // Optional: Set a Subscription Identifier
-                })
-                .Build();
 
             // Subscribe to the MQTT topic
-            await _mqttClient.SubscribeAsync(subscriptionOptions);
-            
+            await _mqttClient.SubscribeAsync(request.Topic);
+
         }
+
 
         private Func<MqttApplicationMessageReceivedEventArgs, Task> ApplicationMessageReceived()
         {
             return async e =>
             {
                 var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                Console.WriteLine($"ClientAPP:Received message from MQTT: {message} for Client {e.ClientId}");
+                Console.WriteLine($"Received message from MQTT Broker: {message} for Client {e.ClientId}");
 
                 // Forward message to RabbitMQ
-                PublishToRabbitMq(message);
+                //PublishToRabbitMq(message);
                 // Since it's async, we return a completed task
+                StopBridge();
                 await Task.CompletedTask;
             };
         }

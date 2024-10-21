@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mqttBrokerServer", "mqttBrokerServer\mqttBrokerServer.csproj", "{9A072BA6-6BDF-4DCC-B6A1-94D370AB7303}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{2DF48661-704A-4592-A957-1CF1D24E1CA4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrokerService", "BrokerService\BrokerService.csproj", "{63C6D09D-D751-4EE2-A297-9269DA7B8CB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9A072BA6-6BDF-4DCC-B6A1-94D370AB7303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A072BA6-6BDF-4DCC-B6A1-94D370AB7303}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A072BA6-6BDF-4DCC-B6A1-94D370AB7303}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A072BA6-6BDF-4DCC-B6A1-94D370AB7303}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2DF48661-704A-4592-A957-1CF1D24E1CA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2DF48661-704A-4592-A957-1CF1D24E1CA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2DF48661-704A-4592-A957-1CF1D24E1CA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2DF48661-704A-4592-A957-1CF1D24E1CA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63C6D09D-D751-4EE2-A297-9269DA7B8CB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63C6D09D-D751-4EE2-A297-9269DA7B8CB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63C6D09D-D751-4EE2-A297-9269DA7B8CB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63C6D09D-D751-4EE2-A297-9269DA7B8CB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
